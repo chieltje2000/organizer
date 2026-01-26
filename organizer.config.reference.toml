@@ -1,0 +1,96 @@
+# organizer.config.reference.toml
+# ---------------------------------
+# This file documents ALL supported configuration options.
+# It is NOT meant to be executed directly.
+# Copy only the parts you need into your .organizer.toml.
+
+[general]
+mode = "move"                 # move | copy
+destination_root = ""         # empty or omitted = in-place
+dry_run_default = true        # if true, requires --apply to actually execute
+
+[scan]
+recursive = false             # false = top-level only (recommended)
+include_hidden = false        # include hidden files/folders
+
+# REQUIRED: explicit allowlist of file extensions (no dots, case-insensitive)
+include_extensions = ["lnk", "url"]
+
+# Optional blocklist (applied after include_extensions)
+exclude_extensions = ["tmp", "part"]
+
+# Which entry types may be considered
+# file = regular files
+# dir  = folders (handled as whole units)
+include_entry_types = ["file", "dir"]
+
+# Directories that will never be scanned (important for in-place)
+ignore_dirs = ["Games", "Apps", "_sorted"]
+
+[conflicts]
+on_exists = "rename"          # rename | skip | error | overwrite
+rename_pattern = "{name} ({n}){ext}"
+
+[safety]
+allow_filesystem_root = false
+blocked_paths = [
+  "C:/Windows",
+  "C:/Program Files",
+  "C:/Program Files (x86)"
+]
+
+[defaults]
+# Possible values: ignore | move_to | error
+unmatched_shortcuts = "ignore"
+unmatched_files     = "ignore"
+unmatched_dirs      = "ignore"
+
+# Required if you use move_to
+unmatched_shortcuts_target = "Apps/Other"
+unmatched_files_target     = "Other"
+unmatched_dirs_target      = "Folders/Other"
+
+[reporting]
+count_unmatched = true
+examples_per_bucket = 5
+
+# =========================================================
+# [[rules]] — routing logic (order matters: first match wins)
+# =========================================================
+
+[[rules]]
+name = "Human readable name"
+
+# kind: shortcut | file | dir
+kind = "shortcut"
+
+# where matched items go (relative to dest_root)
+target = "Target/Folder"
+
+# --- Shortcut match operators (exactly ONE per rule)
+# match = { target_contains = ["\\Steam\\steamapps\\"] }
+# match = { target_startswith = ["C:\\Program Files\\"] }
+# match = { target_endswith = ["\\chrome.exe", "\\firefox.exe"] }
+# match = { target_missing = true }
+
+# --- Dir match operators
+# match = { name_equals = ["steam", "Epic Games"] }
+# match = { name_glob = ["School*", "Work*"] }
+
+# --- File match operators (future-ready)
+# match = { extensions = ["pdf", "docx"] }
+# match = { name_glob = ["invoice*", "*report*"] }
+
+# Fallback (only if defaults.unmatched_* is NOT used)
+# match = { any = true }
+
+# =========================================================
+# DESIGN RULES (important!)
+# =========================================================
+# - Config file is REQUIRED; program will not run without it
+# - scan.include_extensions is REQUIRED and must not be empty
+# - include_extensions must NOT contain dots or wildcards
+# - If a folder is planned to move, its contents are NOT scanned separately
+# - If defaults.unmatched_* is defined, fallback rules (any=true) are forbidden
+# - Unmatched items are ALWAYS counted and shown in preview
+# - Planner decides everything; executor only performs actions

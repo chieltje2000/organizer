@@ -1,0 +1,99 @@
+# .organizer.toml
+# Safe starter config: organizes Desktop shortcuts + some top-level folders.
+# Default behavior: in-place (unless destination_root is set).
+# Safety: refuses to run in filesystem root and blocks common system paths.
+
+[general]
+mode = "move"                 # move|copy
+destination_root = ""         # empty = in-place
+dry_run_default = true        # without --apply, only preview
+
+[scan]
+recursive = false
+include_hidden = false
+
+# REQUIRED (safety feature!)
+include_extensions = ["lnk", "url"]
+
+exclude_extensions = []
+
+# Allow scanning top-level folders too (folders ignore extension filter)
+include_entry_types = ["file", "dir"]
+
+# Prevent re-sorting your own output (important for in-place)
+ignore_dirs = ["Games", "Apps", "Broken Shortcuts", "School", "_sorted"]
+
+[conflicts]
+on_exists = "rename"          # rename|skip|error|overwrite
+rename_pattern = "{name} ({n}){ext}"
+
+[safety]
+allow_filesystem_root = false
+blocked_paths = [
+  "C:/Windows",
+  "C:/Program Files",
+  "C:/Program Files (x86)",
+  "C:/ProgramData"
+]
+
+[defaults]
+unmatched_shortcuts = "ignore"
+unmatched_dirs = "ignore"
+unmatched_files = "ignore"
+
+[reporting]
+count_unmatched = true
+examples_per_bucket = 5
+
+# -----------------------
+# Shortcut rules (.lnk/.url)
+# -----------------------
+
+[[rules]]
+name = "Steam shortcuts"
+kind = "shortcut"
+match = { target_contains = ["\\Steam\\steamapps\\", "\\SteamLibrary\\"] }
+target = "Games/Steam"
+
+[[rules]]
+name = "Epic shortcuts"
+kind = "shortcut"
+match = { target_contains = ["\\Epic Games\\"] }
+target = "Games/Epic"
+
+[[rules]]
+name = "Browsers shortcuts"
+kind = "shortcut"
+match = { target_endswith = ["\\chrome.exe", "\\firefox.exe", "\\msedge.exe"] }
+target = "Apps/Browsers"
+
+[[rules]]
+name = "Broken shortcuts"
+kind = "shortcut"
+match = { target_missing = true }
+target = "Broken Shortcuts"
+
+# No fallback rule on purpose: unmatched shortcuts are ignored (but counted).
+
+# -----------------------
+# Folder rules (top-level folders only)
+# Policy: move the folder as a whole (no scanning inside it)
+# -----------------------
+
+[[rules]]
+name = "Steam folder"
+kind = "dir"
+match = { name_equals = ["steam", "Steam"] }
+target = "Games/Steam"
+
+[[rules]]
+name = "Epic Games folder"
+kind = "dir"
+match = { name_equals = ["Epic Games"] }
+target = "Games/Epic"
+
+[[rules]]
+name = "School folder"
+kind = "dir"
+match = { name_glob = ["School*", "HAN*"] }
+target = "School"
