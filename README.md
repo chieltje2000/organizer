@@ -22,7 +22,7 @@ and clear design boundaries (core vs UI). The actual implementation is left for 
    ```bash
    python -m venv .venv
    .venv\Scripts\activate
-   pip install -e .
+   pip install -e .[dev]
    ```
 
 3. Run (CLI / UI will be wired up later):
@@ -36,7 +36,7 @@ and clear design boundaries (core vs UI). The actual implementation is left for 
 - `src/organizer/interfaces/` – CLI and Tkinter UI
 - `src/organizer/app.py` – entrypoint that chooses interface
 
-## Next steps you can implement (in order)
+## Next steps to implement (in order)
 
 1. `core/config.py` – load + validate TOML (including safety checks)
 2. `core/scan.py` – list entries + apply filters
